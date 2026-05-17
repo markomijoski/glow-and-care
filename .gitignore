@@ -5,6 +5,7 @@
 # Environment — NEVER commit these
 .env
 .env.*
+.env.template
 !.env.template
 !.env.example
 !.env.sample
