@@ -4,6 +4,7 @@
 
 # Environment — NEVER commit these
 .env
+.env.template
 .env.*
 .env.template
 !.env.template
@@ -84,3 +85,5 @@ pnpm-debug.log*
 # Misc local artifacts
 tmp/
 temp/
+
+MASTER_AI_TESTING_SPEC.md

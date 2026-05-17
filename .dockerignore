@@ -1,0 +1,48 @@
+# =============================================================================
+#  CreamShop — .dockerignore
+#  Excludes unnecessary files from the Docker build context
+# =============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.Python
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Environment secrets — NEVER include in image
+.env
+.env.*
+!.env.template
+
+# Django generated
+staticfiles/
+media/
+*.log
+logs/
+
+# Database
+db.sqlite3
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Docker
+docker-compose*.yml
+
+# Tests
+.coverage
+htmlcov/

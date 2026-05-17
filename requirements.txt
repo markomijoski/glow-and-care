@@ -38,4 +38,4 @@ django-anymail[sendgrid]>=10.0
 # django-redis>=5.4
 
 # --- WSGI server ---
-# gunicorn>=21.0
+gunicorn>=21.0
