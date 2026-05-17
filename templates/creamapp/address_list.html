@@ -1,0 +1,60 @@
+{% extends "creamapp/dashboard_base.html" %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h4 fw-bold mb-0">My Addresses</h1>
+  <a href="{% url 'address_create' %}" class="btn btn-pink btn-sm">
+    <i class="bi bi-plus-circle me-1"></i> Add New Address
+  </a>
+</div>
+
+<div class="row g-3">
+  {% for address in addresses %}
+    <div class="col-md-6">
+      <div class="card h-100 gc-glass-card border-0 {% if address.is_default %}border-pink{% endif %}">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+            <h5 class="fw-bold mb-0">{{ address.full_name }}</h5>
+            {% if address.is_default %}
+              <span class="badge bg-pink text-pink-dark">Default</span>
+            {% endif %}
+          </div>
+          <div class="text-muted small lh-sm">
+            {{ address.street }}<br>
+            {{ address.city }}, {{ address.state }} {{ address.postal_code }}<br>
+            {{ address.country }}
+          </div>
+          {% if address.phone %}
+            <div class="mt-2 small text-muted"><i class="bi bi-telephone me-1"></i> {{ address.phone }}</div>
+          {% endif %}
+        </div>
+        <div class="card-footer bg-light border-top-0 d-flex gap-2 pt-0 pb-3">
+          <a href="{% url 'address_edit' address.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+          
+          {% if not address.is_default %}
+            <form method="POST" action="{% url 'address_set_default' address.pk %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-secondary">Set Default</button>
+            </form>
+          {% endif %}
+          
+          <form method="POST" action="{% url 'address_delete' address.pk %}" class="d-inline ms-auto" onsubmit="return confirm('Delete this address?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+          </form>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="col-12">
+      <div class="card border-0 shadow-sm text-center py-5">
+        <div class="card-body text-muted">
+          <i class="bi bi-geo-alt fs-1 mb-3 d-block text-light"></i>
+          <p>You haven't saved any addresses yet.</p>
+          <a href="{% url 'address_create' %}" class="btn btn-outline-pink mt-2">Add your first address</a>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

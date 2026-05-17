@@ -1,0 +1,85 @@
+# =============================================================================
+#  Glow & Care — .gitignore
+# =============================================================================
+
+# Environment — NEVER commit these
+.env
+.env.*
+!.env.template
+!.env.example
+!.env.sample
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.hypothesis/
+.tox/
+.nox/
+.cache/
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Packaging / build outputs
+pip-wheel-metadata/
+*.manifest
+*.spec
+
+# Django
+*.log
+staticfiles/
+media/
+logs/
+celerybeat-schedule
+celerybeat.pid
+celerybeat.lock
+
+# Database
+*.sqlite3
+db.sqlite3
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage/
+coverage.xml
+*.cover
+*.py,cover
+
+# Node (if using npm for assets)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Misc local artifacts
+tmp/
+temp/

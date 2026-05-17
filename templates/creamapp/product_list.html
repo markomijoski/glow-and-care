@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% load filter_utils %}
+
+{% block title %}Products{% endblock %}
+
+{% block content %}
+<div class="container py-4 py-lg-5">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+    <h1 class="h3 fw-bold mb-0">All Products</h1>
+    <span class="text-muted small">{{ page_obj.paginator.count }} product{{ page_obj.paginator.count|pluralize }}</span>
+  </div>
+
+  <div class="row g-4">
+    {# ── SIDEBAR FILTERS ── #}
+    <div class="col-lg-3">
+      <div class="card gc-glass-card sticky-lg-top gc-sticky-6">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h6 fw-bold mb-0">Filters</h2>
+            <a href="{% url 'product_list' %}" class="text-pink small text-decoration-none fw-semibold">Reset All</a>
+          </div>
+
+          <form id="filter-form" method="get" action="{% url 'product_list' %}" class="d-grid gap-4">
+            
+            {# Categories #}
+            <div>
+              <label class="form-label small fw-bold text-uppercase tracking-wider text-muted mb-2">Categories</label>
+              <div class="filter-scroll-area pe-2" style="max-height: 200px; overflow-y: auto;">
+                {% for category in categories %}
+                  {% if category.product_count > 0 or category.slug in selected_category_slugs %}
+                  <div class="form-check mb-1">
+                    <input class="form-check-input" type="checkbox" name="category" value="{{ category.slug }}" id="cat-{{ category.slug }}" {% if category.slug in selected_category_slugs %}checked{% endif %}>
+                    <label class="form-check-label small d-flex justify-content-between w-100" for="cat-{{ category.slug }}">
+                      <span>{{ category.name }}</span>
+                      <span class="text-muted opacity-50">{{ category.product_count }}</span>
+                    </label>
+                  </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+
+            {# Tags #}
+            <div>
+              <label class="form-label small fw-bold text-uppercase tracking-wider text-muted mb-2">Skin Concerns & Tags</label>
+              <div class="filter-scroll-area pe-2" style="max-height: 200px; overflow-y: auto;">
+                {% for tag in tags %}
+                  {% if tag.product_count > 0 or tag.slug in selected_tag_slugs %}
+                  <div class="form-check mb-1">
+                    <input class="form-check-input" type="checkbox" name="tag" value="{{ tag.slug }}" id="tag-{{ tag.slug }}" {% if tag.slug in selected_tag_slugs %}checked{% endif %}>
+                    <label class="form-check-label small d-flex justify-content-between w-100" for="tag-{{ tag.slug }}">
+                      <span>{{ tag.name }}</span>
+                      <span class="text-muted opacity-50">{{ tag.product_count }}</span>
+                    </label>
+                  </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+
+            {# Rating #}
+            <div>
+              <label class="form-label small fw-bold text-uppercase tracking-wider text-muted mb-2">Rating</label>
+              {% for star in star_range %}
+              <div class="form-check mb-1">
+                <input class="form-check-input" type="radio" name="min_rating" value="{{ star }}" id="rate-{{ star }}" {% if selected_min_rating == star %}checked{% endif %}>
+                <label class="form-check-label small" for="rate-{{ star }}">
+                  <span class="text-warning">
+                    {% for i in "12345"|make_list %}{% if forloop.counter <= star %}★{% else %}☆{% endif %}{% endfor %}
+                  </span>
+                  <span class="ms-1">& Up</span>
+                </label>
+              </div>
+              {% endfor %}
+            </div>
+
+            {# Availability #}
+            <div>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="in_stock" value="true" id="in-stock" {% if in_stock_only %}checked{% endif %}>
+                <label class="form-check-label small fw-bold text-dark" for="in-stock">In Stock Only</label>
+              </div>
+            </div>
+
+            {# Price Range #}
+            <div>
+              <label class="form-label small fw-bold text-uppercase tracking-wider text-muted mb-2">Price Range</label>
+              <div class="row g-2">
+                <div class="col-6">
+                  <input type="number" step="0.01" min="0" name="min_price" id="min-price-input" value="{{ selected_min_price|default_if_none:'' }}" class="form-control form-control-sm" placeholder="Min" />
+                </div>
+                <div class="col-6">
+                  <input type="number" step="0.01" min="0" name="max_price" id="max-price-input" value="{{ selected_max_price|default_if_none:'' }}" class="form-control form-control-sm" placeholder="Max" />
+                </div>
+              </div>
+              <button type="submit" class="btn btn-sm btn-outline-pink w-100 mt-2 py-1">Set Price</button>
+            </div>
+
+            {# Hidden Sort (maintained via pagination and pills) #}
+            <input type="hidden" name="sort" value="{{ selected_sort }}">
+          </form>
+        </div>
+      </div>
+    </div>
+
+    {# ── MAIN CONTENT ── #}
+    <div class="col-lg-9">
+      
+      {# Sort & Active Pills #}
+      <div class="d-flex flex-column gap-3 mb-4">
+        
+        {# Sort Select #}
+        <div class="d-flex justify-content-end align-items-center gap-2">
+          <label class="small text-muted fw-semibold">Sort By:</label>
+          <select class="form-select form-select-sm w-auto border-0 bg-transparent fw-bold" onchange="document.querySelector('input[name=sort]').value = this.value; document.getElementById('filter-form').submit();">
+            {% for sort_key, sort_label in sort_options.items %}
+              <option value="{{ sort_key }}" {% if selected_sort == sort_key %}selected{% endif %}>{{ sort_label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {# Active Pills #}
+        {% if selected_category_slugs or selected_tag_slugs or selected_min_price or selected_max_price or selected_min_rating or in_stock_only %}
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          <span class="small text-muted me-1">Active:</span>
+          
+          {% for cat in selected_categories %}
+            <a href="?{% url_replace category=cat.slug %}" class="badge rounded-pill bg-pink-light text-pink text-decoration-none px-3 py-2 border-0">
+              {{ cat.name }} <i class="bi bi-x-lg ms-1"></i>
+            </a>
+          {% endfor %}
+
+          {% for tag_slug in selected_tag_slugs %}
+            <a href="?{% url_replace tag=tag_slug %}" class="badge rounded-pill bg-pink-light text-pink text-decoration-none px-3 py-2 border-0">
+              {{ tag_slug|title }} <i class="bi bi-x-lg ms-1"></i>
+            </a>
+          {% endfor %}
+
+          {% if selected_min_price or selected_max_price %}
+            <a href="?{% url_replace min_price='' max_price='' %}" class="badge rounded-pill bg-pink-light text-pink text-decoration-none px-3 py-2 border-0">
+              ${{ selected_min_price|default:"0" }} - {% if selected_max_price %}${{ selected_max_price }}{% else %}∞{% endif %} <i class="bi bi-x-lg ms-1"></i>
+            </a>
+          {% endif %}
+
+          {% if selected_min_rating %}
+            <a href="?{% url_replace min_rating='' %}" class="badge rounded-pill bg-pink-light text-pink text-decoration-none px-3 py-2 border-0">
+              {{ selected_min_rating }}★ & Up <i class="bi bi-x-lg ms-1"></i>
+            </a>
+          {% endif %}
+
+          {% if in_stock_only %}
+            <a href="?{% url_replace in_stock='' %}" class="badge rounded-pill bg-pink-light text-pink text-decoration-none px-3 py-2 border-0">
+              In Stock <i class="bi bi-x-lg ms-1"></i>
+            </a>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+
+      {# Product Grid #}
+      {% include "creamapp/partials/product_grid.html" with products=products empty_message="No products found with the selected filters." %}
+
+      {# Pagination #}
+      {% if is_paginated %}
+        <nav aria-label="Product pagination" class="mt-5">
+          <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link border-0 rounded-circle mx-1" href="?{% url_replace page=page_obj.previous_page_number %}">
+                  <i class="bi bi-chevron-left"></i>
+                </a>
+              </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+              {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link border-0 rounded-circle mx-1 bg-pink text-white">{{ num }}</span></li>
+              {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item"><a class="page-link border-0 rounded-circle mx-1 text-dark" href="?{% url_replace page=num %}">{{ num }}</a></li>
+              {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link border-0 rounded-circle mx-1" href="?{% url_replace page=page_obj.next_page_number %}">
+                  <i class="bi bi-chevron-right"></i>
+                </a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const filterForm = document.getElementById('filter-form');
+    
+    // Auto-submit for checkboxes, radios, and switches
+    filterForm.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => {
+      input.addEventListener('change', () => {
+        filterForm.submit();
+      });
+    });
+
+    // Price Validation: User request "min price has to be below the max price"
+    filterForm.addEventListener('submit', function(e) {
+      const minInput = document.getElementById('min-price-input');
+      const maxInput = document.getElementById('max-price-input');
+      const minVal = parseFloat(minInput.value);
+      const maxVal = parseFloat(maxInput.value);
+
+      if (!isNaN(minVal) && !isNaN(maxVal) && minVal > maxVal) {
+        // Swap them before submission
+        minInput.value = maxVal;
+        maxInput.value = minVal;
+      }
+    });
+  });
+</script>
+{% endblock %}

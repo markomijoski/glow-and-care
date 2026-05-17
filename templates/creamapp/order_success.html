@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Order #{{ order.pk }} Confirmed{% endblock %}
+{% block meta_description %}Your Glow & Care order has been placed successfully.{% endblock %}
+
+{# Styles moved to static/css/theme.css: success-check, item-thumb-img, .max-w-750 #}
+{% block extra_css %}{% endblock %}
+
+{% block content %}
+<div class="container py-5 max-w-750 mx-auto">
+
+  {# ── Success hero ── #}
+  <div class="text-center mb-5">
+    <div class="success-check-wrap">
+      <svg class="success-check" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+        <circle class="success-check__circle" cx="26" cy="26" r="25" fill="none"/>
+        <path class="success-check__tick" fill="none" d="M14 27l8 8 16-16"/>
+      </svg>
+    </div>
+    <h1 class="display-6 fw-bold text-dark mb-3">Order Confirmed!</h1>
+    <p class="text-muted fs-5 mb-1">
+      Thank you, <span class="fw-bold text-dark">{{ order.user.get_full_name|default:order.user.username }}</span>!
+    </p>
+    <p class="text-muted">
+      Your order <span class="fw-bold text-dark">#{{ order.pk }}</span> has been received and is being prepared.
+    </p>
+    {% if order.user.email %}
+      <div class="d-inline-flex align-items-center bg-white px-4 py-2 rounded-pill shadow-sm mt-2 border border-light">
+        <i class="bi bi-envelope-check text-success fs-5 me-2"></i>
+        <span class="small text-muted">Confirmation sent to <strong>{{ order.user.email }}</strong></span>
+      </div>
+    {% endif %}
+  </div>
+
+  {# ── Order summary card ── #}
+  <div class="order-card gc-order-card mb-5">
+    
+    <div class="row g-0 text-center border-bottom border-white border-opacity-10 bg-white bg-opacity-10">
+      <div class="col-md-3 gc-order-meta-item py-3 py-md-4">
+        <div class="text-uppercase text-muted small fw-bold tracking-wide mb-1">Order #</div>
+        <div class="fw-semibold text-dark">{{ order.pk }}</div>
+      </div>
+      <div class="col-md-3 gc-order-meta-item py-3 py-md-4">
+        <div class="text-uppercase text-muted small fw-bold tracking-wide mb-1">Date</div>
+        <div class="fw-semibold text-dark">{{ order.created_at|date:"M d, Y" }}</div>
+      </div>
+      <div class="col-md-3 gc-order-meta-item py-3 py-md-4">
+        <div class="text-uppercase text-muted small fw-bold tracking-wide mb-1">Status</div>
+        <div class="fw-semibold">
+          <span class="badge bg-warning text-dark">{{ order.get_status_display }}</span>
+        </div>
+      </div>
+      <div class="col-md-3 gc-order-meta-item py-3 py-md-4">
+        <div class="text-uppercase text-muted small fw-bold tracking-wide mb-1">Total</div>
+        <div class="fw-bold text-pink fs-5">${{ order.total_price }}</div>
+      </div>
+    </div>
+
+    <div class="p-4 p-md-5">
+      
+      {% if order.shipping_address %}
+      <h6 class="fw-bold text-dark mb-3 text-uppercase tracking-wide small">Shipping Address</h6>
+      <div class="bg-white bg-opacity-10 rounded-3 p-3 mb-5 border border-white border-opacity-10">
+        <div class="fw-bold text-dark mb-1">{{ order.shipping_address.full_name }}</div>
+        <div class="text-muted small lh-sm">
+          {{ order.shipping_address.street }}<br>
+          {{ order.shipping_address.city }}, {{ order.shipping_address.state }} {{ order.shipping_address.postal_code }}<br>
+          {{ order.shipping_address.country }}
+        </div>
+      </div>
+      {% endif %}
+
+      <h6 class="fw-bold text-dark mb-4 text-uppercase tracking-wide small">Order Items</h6>
+      <div class="d-flex flex-column gap-3 mb-4">
+        {% for item in order.order_items.all %}
+        <div class="d-flex align-items-center">
+          <div class="flex-shrink-0 me-3">
+            {% if item.product.primary_image %}
+              <img src="{{ item.product.primary_image.url }}" alt="{{ item.product.name }}" class="item-thumb-img shadow-sm">
+            {% else %}
+              <div class="item-thumb-img bg-white bg-opacity-10 d-flex align-items-center justify-content-center text-muted shadow-sm">
+                <i class="bi bi-image"></i>
+              </div>
+            {% endif %}
+          </div>
+          <div class="flex-grow-1 min-w-0">
+            <h6 class="mb-0 fw-bold text-dark text-truncate">{{ item.product.name }}</h6>
+            <div class="small text-muted">
+              {% if item.variant %}{{ item.variant.name }} · {% endif %}Qty: {{ item.quantity }}
+            </div>
+          </div>
+          <div class="fw-semibold ms-3 text-dark">
+            ${{ item.subtotal }}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% if order.discount_code %}
+      <div class="bg-success bg-opacity-10 text-success rounded-3 p-3 mt-4 d-flex align-items-center fw-semibold small">
+        <i class="bi bi-tag-fill me-2 fs-5"></i>
+        Discount code <span class="badge bg-success mx-1">{{ order.discount_code.code }}</span> applied ({{ order.discount_code.discount_percent }}% off).
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  {# ── CTAs ── #}
+  <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+    <a href="{% url 'order_detail' order.pk %}" class="btn btn-dark btn-lg px-5 fw-bold shadow-sm">
+      View Order Details
+    </a>
+    <a href="{% url 'product_list' %}" class="btn btn-outline-dark btn-lg px-5 fw-bold shadow-sm">
+      Continue Shopping
+    </a>
+  </div>
+
+</div>
+{% endblock %}

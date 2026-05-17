@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cream - Premium Skincare{% endblock %}
+
+{% block content %}
+
+<!-- 1. Hero Banner -->
+{% if banners %}
+<div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+  <div class="carousel-indicators">
+    {% for banner in banners %}
+      <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active"{% endif %} aria-current="true" aria-label="Slide {{ forloop.counter }}"></button>
+    {% endfor %}
+  </div>
+  <div class="carousel-inner">
+    {% for banner in banners %}
+    <div class="carousel-item {% if forloop.first %}active{% endif %} gc-hero-slide position-relative">
+      <div class="position-absolute w-100 h-100 bg-dark gc-hero-overlay">
+        {% if banner.image %}
+          <img src="{{ banner.image.url }}" class="d-block w-100 h-100 object-fit-cover gc-opacity-60" alt="{{ banner.title }}">
+        {% else %}
+          <div class="w-100 h-100 bg-secondary gc-opacity-60"></div>
+        {% endif %}
+      </div>
+      <div class="carousel-caption d-flex flex-column justify-content-center h-100 pb-5 gc-hero-caption">
+        <h1 class="display-3 fw-bold text-white mb-3 text-shadow">{{ banner.title }}</h1>
+        {% if banner.subtitle %}
+          <p class="lead text-white fw-light mb-4 text-shadow">{{ banner.subtitle }}</p>
+        {% endif %}
+        {% if banner.link_url %}
+          <div>
+            <a href="{{ banner.link_url }}" class="btn btn-pink btn-lg px-5 py-3 shadow-lg">{{ banner.button_text|default:"Shop Now" }}</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <button class="carousel-control-prev gc-carousel-control" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next gc-carousel-control" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
+{% endif %}
+
+<!-- 2. Trust Bar -->
+<div class="gc-glass-panel py-3 border-bottom border-white border-opacity-10">
+  <div class="container">
+    <div class="row g-2 text-center small text-muted fw-semibold">
+      <div class="col-6 col-md-3 d-flex align-items-center justify-content-center gap-2">
+        <i class="bi bi-truck fs-5 text-pink"></i> Free Delivery over $50
+      </div>
+      <div class="col-6 col-md-3 d-flex align-items-center justify-content-center gap-2">
+        <i class="bi bi-heptagon fs-5 text-pink"></i> Cruelty Free
+      </div>
+      <div class="col-6 col-md-3 d-flex align-items-center justify-content-center gap-2">
+        <i class="bi bi-patch-check fs-5 text-pink"></i> Dermatologist Tested
+      </div>
+      <div class="col-6 col-md-3 d-flex align-items-center justify-content-center gap-2">
+        <i class="bi bi-arrow-return-left fs-5 text-pink"></i> 30-Day Returns
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Featured Categories -->
+{% if featured_categories %}
+<div class="container py-5">
+  <div class="text-center mb-5">
+    <h2 class="fw-bold">Shop by Category</h2>
+    <div class="bg-pink mx-auto gc-section-rule"></div>
+  </div>
+  <div class="row g-4">
+    {% for category in featured_categories %}
+    <div class="col-6 col-md-3">
+      <a href="{% url 'category_detail' category.slug %}" class="text-decoration-none text-dark category-card">
+        <div class="card gc-glass-card border-0 overflow-hidden h-100">
+          {% if category.image %}
+            <img src="{{ category.image.url }}" class="card-img-top gc-media-240" alt="{{ category.name }}">
+          {% else %}
+            <div class="bg-white bg-opacity-10 card-img-top gc-media-240 d-flex align-items-center justify-content-center text-muted">
+              <i class="bi bi-image fs-1"></i>
+            </div>
+          {% endif %}
+          <div class="card-img-overlay d-flex align-items-end p-0">
+            <div class="bg-white w-100 py-3 text-center gc-opacity-95">
+              <h5 class="mb-0 fw-bold">{{ category.name }}</h5>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- 4. Best Sellers -->
+{% if best_sellers %}
+<div class="bg-cream py-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <div>
+        <h2 class="fw-bold mb-2">Best Sellers</h2>
+        <div class="bg-pink gc-section-rule"></div>
+      </div>
+      <a href="{% url 'product_list' %}" class="btn btn-outline-dark btn-sm d-none d-md-inline-block">Shop All</a>
+    </div>
+    
+    <div class="row g-3 g-md-4">
+      {% for product in best_sellers %}
+        <div class="col-6 col-md-3">
+          {% include 'creamapp/includes/product_card.html' with product=product %}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-4 d-md-none">
+      <a href="{% url 'product_list' %}" class="btn btn-outline-dark w-100">Shop All</a>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- 5. Promotional Banner -->
+{% if promo %}
+<div class="gc-glass-panel py-5 my-4">
+  <div class="container text-center py-4">
+    <h2 class="display-5 fw-bold text-dark mb-3">Special Offer</h2>
+    <p class="lead text-dark mb-4">Enjoy <strong>{{ promo.discount_percent }}% OFF</strong> your entire order.</p>
+    <div class="d-inline-flex align-items-center bg-white p-2 rounded-pill shadow-sm border border-light">
+      <span class="px-4 fw-bold fs-5 text-pink font-monospace" id="promo-code">{{ promo.code }}</span>
+      <button class="btn btn-dark rounded-pill px-4 ms-2" onclick="copyPromoCode()">Copy Code</button>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- 6. New Arrivals -->
+{% if new_arrivals %}
+<div class="container py-5">
+      <div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+      <h2 class="fw-bold mb-2">New Arrivals</h2>
+      <div class="bg-pink gc-section-rule"></div>
+    </div>
+    <a href="{% url 'product_list' %}?sort=newest" class="btn btn-outline-dark btn-sm d-none d-md-inline-block">View All</a>
+  </div>
+  
+  <div class="row g-3 g-md-4">
+    {% for product in new_arrivals %}
+      <div class="col-6 col-md-3">
+        {% include 'creamapp/includes/product_card.html' with product=product %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- 7. Why Choose Us -->
+<div class="bg-light py-5">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">Why Choose Cream?</h2>
+      <div class="bg-pink mx-auto mt-2 gc-section-rule"></div>
+    </div>
+    <div class="row g-4 text-center">
+      <div class="col-md-3">
+        <div class="mb-3"><i class="bi bi-search text-pink feature-icon"></i></div>
+        <h5 class="fw-bold">Ingredient Transparency</h5>
+        <p class="text-muted small">We list every single ingredient. No hidden chemicals, just pure goodness.</p>
+      </div>
+      <div class="col-md-3">
+        <div class="mb-3"><i class="bi bi-flower1 text-pink feature-icon"></i></div>
+        <h5 class="fw-bold">100% Vegan Formulas</h5>
+        <p class="text-muted small">Kind to your skin, kind to animals. Completely plant-based products.</p>
+      </div>
+      <div class="col-md-3">
+        <div class="mb-3"><i class="bi bi-droplet-half text-pink feature-icon"></i></div>
+        <h5 class="fw-bold">Skin-Type Matching</h5>
+        <p class="text-muted small">Formulas designed specifically for oily, dry, combo, or sensitive skin.</p>
+      </div>
+      <div class="col-md-3">
+        <div class="mb-3"><i class="bi bi-shield-check text-pink feature-icon"></i></div>
+        <h5 class="fw-bold">Dermatologist Backed</h5>
+        <p class="text-muted small">Clinically tested to ensure safety and effectiveness for all skin types.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. Customer Reviews Carousel -->
+{% if reviews %}
+<div class="container py-5">
+  <div class="text-center mb-5">
+    <h2 class="fw-bold">Loved by Customers</h2>
+    <div class="bg-pink mx-auto mt-2 gc-section-rule"></div>
+  </div>
+  
+  <div class="row flex-nowrap overflow-auto hide-scroll pb-3 px-2 gap-4 gc-review-snap">
+    {% for review in reviews %}
+      <div class="col-10 col-md-5 col-lg-4 flex-shrink-0">
+        <div class="card gc-glass-card h-100 border-0 p-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="text-warning fs-5 me-2">
+              {% for i in "12345" %}
+                {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          <h6 class="fw-bold text-dark mb-2">"{{ review.comment|truncatewords:10 }}"</h6>
+          <p class="text-muted small mb-4 flex-grow-1">{{ review.comment|truncatewords:30 }}</p>
+          <div class="d-flex align-items-center pt-3 border-top">
+            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center text-pink fw-bold me-3 review-avatar">
+              {{ review.user.first_name|default:review.user.username|make_list|first|upper }}
+            </div>
+            <div>
+              <div class="fw-semibold small text-dark">{{ review.user.first_name|default:review.user.username }}</div>
+              <div class="text-muted small">Verified Buyer · {{ review.product.name }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- 9. Newsletter Signup -->
+    <div class="gc-glass-panel py-5">
+  <div class="container py-4 text-center">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <i class="bi bi-envelope-paper fs-1 text-pink mb-3 d-block"></i>
+        <h2 class="fw-bold mb-3">Join the Cream Club</h2>
+        <p class="text-muted mb-4">Subscribe to our newsletter and get 10% off your first order. Plus, early access to new drops!</p>
+        
+        <form id="newsletter-form" class="d-flex flex-column flex-sm-row gap-2">
+          {% csrf_token %}
+          <input type="email" id="newsletter-email" class="form-control form-control-lg border-0 shadow-none px-4" placeholder="Enter your email address" required>
+          <button type="submit" class="btn btn-pink btn-lg px-4 flex-shrink-0">Subscribe</button>
+        </form>
+        <div id="newsletter-message" class="mt-3 small d-none"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+{# Styles moved to static/css/theme.css (cream/glass helpers) #}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function copyPromoCode() {
+    const code = document.getElementById('promo-code').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      const btn = event.target;
+      const originalText = btn.innerText;
+      btn.innerText = "Copied!";
+      btn.classList.replace("btn-dark", "btn-success");
+      setTimeout(() => {
+        btn.innerText = originalText;
+        btn.classList.replace("btn-success", "btn-dark");
+      }, 2000);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const nlForm = document.getElementById('newsletter-form');
+    if (nlForm) {
+      nlForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('newsletter-email').value;
+        const msgDiv = document.getElementById('newsletter-message');
+        const btn = this.querySelector('button');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        fetch("{% url 'newsletter_subscribe' %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+          },
+          body: JSON.stringify({ email: email })
+        })
+        .then(response => response.json())
+        .then(data => {
+          msgDiv.style.display = 'block';
+          if (data.success) {
+            msgDiv.className = 'mt-3 small text-success fw-bold';
+            msgDiv.innerText = data.message;
+            nlForm.reset();
+          } else {
+            msgDiv.className = 'mt-3 small text-danger fw-bold';
+            msgDiv.innerText = data.error || "An error occurred.";
+          }
+          btn.disabled = false;
+          btn.innerText = 'Subscribe';
+        })
+        .catch(err => {
+          msgDiv.style.display = 'block';
+          msgDiv.className = 'mt-3 small text-danger fw-bold';
+          msgDiv.innerText = "Connection error. Please try again later.";
+          btn.disabled = false;
+          btn.innerText = 'Subscribe';
+        });
+      });
+    }
+  });
+</script>
+{% endblock %}

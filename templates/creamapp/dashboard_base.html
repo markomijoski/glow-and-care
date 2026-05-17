@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Account{% endblock %}
+
+{% block extra_css %}
+{% block dashboard_css %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4 py-lg-5">
+  <div class="row g-4">
+    
+    {# ── SIDEBAR ── #}
+    <div class="col-lg-3">
+      <div class="card gc-glass-card border-0 mb-4">
+        <div class="card-body p-3 p-lg-4">
+          <div class="d-flex align-items-center mb-4 px-2">
+            {% if request.user.profile.avatar %}
+              <img src="{{ request.user.profile.avatar.url }}" alt="Avatar" class="rounded-circle me-3 gc-avatar-50">
+            {% else %}
+              <div class="bg-white bg-opacity-10 rounded-circle me-3 d-flex align-items-center justify-content-center text-muted gc-avatar-50">
+                <i class="bi bi-person fs-4"></i>
+              </div>
+            {% endif %}
+            <div>
+              <div class="fw-bold">{{ request.user.get_full_name|default:request.user.username }}</div>
+              <div class="small text-muted">{{ request.user.email }}</div>
+            </div>
+          </div>
+          
+          <nav class="nav flex-column gap-1 dashboard-sidebar">
+            <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %} px-3 py-2 rounded-4 transition-all {% if request.resolver_match.url_name == 'profile' %}bg-pink text-white{% else %}text-muted{% endif %}" href="{% url 'profile' %}">
+              <i class="bi bi-person"></i> Profile
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'order_list' or request.resolver_match.url_name == 'order_detail' %}active{% endif %} px-3 py-2 rounded-4 transition-all {% if request.resolver_match.url_name == 'order_list' or request.resolver_match.url_name == 'order_detail' %}bg-pink text-white{% else %}text-muted{% endif %}" href="{% url 'order_list' %}">
+              <i class="bi bi-box-seam"></i> Orders
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'wishlist' %}active{% endif %} px-3 py-2 rounded-4 transition-all {% if request.resolver_match.url_name == 'wishlist' %}bg-pink text-white{% else %}text-muted{% endif %}" href="{% url 'wishlist' %}">
+              <i class="bi bi-heart"></i> Wishlist
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'address_list' %}active{% endif %} px-3 py-2 rounded-4 transition-all {% if request.resolver_match.url_name == 'address_list' %}bg-pink text-white{% else %}text-muted{% endif %}" href="{% url 'address_list' %}">
+              <i class="bi bi-geo-alt"></i> Addresses
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'notifications' %}active{% endif %} px-3 py-2 rounded-4 transition-all {% if request.resolver_match.url_name == 'notifications' %}bg-pink text-white{% else %}text-muted{% endif %}" href="{% url 'notifications' %}">
+              <i class="bi bi-bell"></i> Notifications
+              {% if request.user.notifications.unread.count %}
+                <span class="badge bg-danger rounded-pill float-end mt-1">{{ request.user.notifications.unread.count }}</span>
+              {% endif %}
+            </a>
+            <hr class="my-2 border-dark border-opacity-10">
+            <a class="nav-link px-3 py-2 rounded-4 transition-all text-muted" href="{% url 'account_logout' %}">
+              <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+          </nav>
+        </div>
+      </div>
+    </div>
+    
+    {# ── MAIN CONTENT ── #}
+    <div class="col-lg-9">
+      {% block dashboard_content %}{% endblock %}
+    </div>
+    
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% block dashboard_js %}{% endblock %}
+{% endblock %}

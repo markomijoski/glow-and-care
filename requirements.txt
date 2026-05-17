@@ -1,0 +1,41 @@
+# =============================================================================
+#  Glow & Care — Python Dependencies
+# =============================================================================
+
+# --- Core ---
+Django>=5.2,<6.0
+psycopg2-binary>=2.9          # PostgreSQL adapter
+Pillow>=10.0                  # ImageField support (product images, avatars)
+
+# --- Environment ---
+django-environ>=0.11          # .env file support
+
+# --- Authentication ---
+django-allauth>=0.57          # login, register, password reset, social login
+
+# --- Forms ---
+django-crispy-forms>=2.1
+crispy-bootstrap5>=0.7
+
+# --- Static Files ---
+whitenoise>=6.6               # serve static files efficiently
+
+# --- Development only ---
+django-debug-toolbar>=4.2     # SQL query inspector, request profiler
+
+# =============================================================================
+#  PRODUCTION EXTRAS (uncomment when deploying)
+# =============================================================================
+
+# --- Email ---
+django-anymail[sendgrid]>=10.0
+
+# --- Media Storage (AWS S3) ---
+# django-storages>=1.14
+# boto3>=1.28
+
+# --- Caching (Redis) ---
+# django-redis>=5.4
+
+# --- WSGI server ---
+# gunicorn>=21.0

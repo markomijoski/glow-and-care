@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Search{% endblock %}
+
+{% block content %}
+<div class="container py-4 py-lg-5">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="h3 fw-bold mb-0">Search Results</h1>
+    {% if query %}
+      <span class="text-muted small">"{{ query }}" · {{ page_obj.paginator.count }} match{{ page_obj.paginator.count|pluralize }}</span>
+    {% endif %}
+  </div>
+
+  {% if not query %}
+    <div class="alert alert-light border">Enter a keyword in the search bar to discover products.</div>
+  {% endif %}
+
+  {% include "creamapp/partials/product_grid.html" with products=products empty_message="No products matched your search." %}
+
+  {% if is_paginated %}
+    <nav aria-label="Search pagination" class="mt-4">
+      <ul class="pagination pagination-sm mb-0">
+        {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?q={{ query }}&page={{ page_obj.previous_page_number }}&sort={{ selected_sort }}">Previous</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+        {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?q={{ query }}&page={{ page_obj.next_page_number }}&sort={{ selected_sort }}">Next</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+</div>
+{% endblock %}

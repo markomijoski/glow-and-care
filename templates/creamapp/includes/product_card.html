@@ -1,0 +1,54 @@
+<article class="product-card card gc-glass-card h-100 border-0 overflow-hidden">
+  <a href="{% url 'product_detail' product.slug %}" class="d-block position-relative">
+    {% if product.primary_image %}
+      <img src="{{ product.primary_image.url }}" class="card-img-top gc-media-240" alt="{{ product.name }}" loading="lazy" />
+    {% else %}
+      <div class="bg-white bg-opacity-10 card-img-top gc-media-240 d-flex align-items-center justify-content-center text-muted">
+        <i class="bi bi-image fs-1"></i>
+      </div>
+    {% endif %}
+
+    {% if not product.is_in_stock %}
+      <span class="badge badge-out-of-stock position-absolute top-0 end-0 m-2 px-3 py-2">Sold Out</span>
+    {% elif product.is_low_stock %}
+      <span class="badge badge-low-stock position-absolute top-0 end-0 m-2 px-3 py-2 shadow-sm">Only {{ product.stock }} left!</span>
+    {% endif %}
+  </a>
+
+  <div class="card-body d-flex flex-column p-3 p-lg-4">
+    {% if product.category %}
+      <a class="text-muted small text-decoration-none" href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a>
+    {% endif %}
+    <h6 class="mt-1 mb-2 fw-bold text-truncate">
+      <a class="text-dark text-decoration-none" href="{% url 'product_detail' product.slug %}">{{ product.name }}</a>
+    </h6>
+
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <span class="text-pink fw-bold">${{ product.price }}</span>
+      <span class="stars small text-warning">
+        {% if product.avg_rating %}
+          {{ product.avg_rating|floatformat:1 }} <i class="bi bi-star-fill"></i>
+        {% else %}
+          <span class="text-muted small">No rating</span>
+        {% endif %}
+      </span>
+    </div>
+
+    <div class="mt-auto d-flex gap-2">
+      <a class="btn btn-sm btn-outline-secondary w-50" href="{% url 'product_detail' product.slug %}">View</a>
+      {% if product.is_in_stock %}
+        <button
+          type="button"
+          class="btn btn-sm btn-pink w-50"
+          data-add-to-cart
+          data-product-id="{{ product.id }}"
+          data-url="{% url 'cart_add' %}"
+        >
+          Add
+        </button>
+      {% else %}
+        <button type="button" class="btn btn-sm btn-light w-50" disabled>Sold out</button>
+      {% endif %}
+    </div>
+  </div>
+</article>

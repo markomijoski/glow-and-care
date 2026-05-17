@@ -1,0 +1,91 @@
+{% extends "creamapp/dashboard_base.html" %}
+{% load static %}
+
+{% block dashboard_content %}
+<div class="card gc-glass-card mb-4">
+  <div class="card-body p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h4 fw-bold mb-0">Order #{{ order.pk }}</h1>
+      <a href="{% url 'order_list' %}" class="btn btn-outline-secondary btn-sm">Back to Orders</a>
+    </div>
+    
+    <div class="row g-4 mb-4">
+      <div class="col-md-6">
+        <h6 class="text-muted fw-bold mb-2">Order Information</h6>
+        <div class="small">
+          <div><span class="text-muted">Date:</span> {{ order.created_at|date:"M d, Y" }}</div>
+          <div><span class="text-muted">Status:</span> <span class="badge bg-light text-dark border">{{ order.get_status_display }}</span></div>
+          <div><span class="text-muted">Total:</span> <span class="fw-bold">${{ order.total_price }}</span></div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h6 class="text-muted fw-bold mb-2">Shipping Address</h6>
+        <div class="small">
+          {% if order.shipping_address %}
+            {{ order.shipping_address.full_name }}<br>
+            {{ order.shipping_address.street }}<br>
+            {{ order.shipping_address.city }}, {{ order.shipping_address.state }} {{ order.shipping_address.postal_code }}<br>
+            {{ order.shipping_address.country }}
+          {% else %}
+            <span class="text-muted">No address provided.</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="table-responsive mb-4">
+      <table class="table table-borderless align-middle">
+        <thead class="table-light">
+          <tr>
+            <th colspan="2">Item</th>
+            <th class="text-center">Qty</th>
+            <th class="text-end">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in order.order_items.all %}
+          <tr>
+            <td>
+              {% with img=item.product.primary_image %}
+                {% if img %}
+                  <img src="{{ img.url }}" alt="{{ item.product.name }}" class="rounded item-thumb-img">
+                {% else %}
+                  <div class="bg-light rounded d-flex align-items-center justify-content-center text-muted item-thumb-img">
+                    <i class="bi bi-image"></i>
+                  </div>
+                {% endif %}
+              {% endwith %}
+            </td>
+            <td>
+              <div class="fw-bold">{{ item.product.name }}</div>
+              {% if item.variant %}<div class="small text-muted">{{ item.variant.name }}</div>{% endif %}
+            </td>
+            <td class="text-center">{{ item.quantity }}</td>
+            <td class="text-end">${{ item.subtotal }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot class="border-top">
+          <tr>
+            <td colspan="3" class="text-end text-muted">Subtotal</td>
+            <td class="text-end">${{ order.total_price }}</td>
+          </tr>
+          <tr>
+            <td colspan="3" class="text-end text-muted">Shipping</td>
+            <td class="text-end text-success">Free</td>
+          </tr>
+          <tr>
+            <td colspan="3" class="text-end fw-bold">Total</td>
+            <td class="text-end fw-bold">${{ order.total_price }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    
+    <div class="d-flex justify-content-end">
+      <a href="{% url 'order_return' order.pk %}" class="btn btn-outline-danger">Request Return</a>
+    </div>
+    
+  </div>
+</div>
+{% endblock %}

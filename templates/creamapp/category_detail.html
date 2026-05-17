@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4 py-lg-5">
+  <div class="mb-4">
+    <p class="text-muted small mb-1">Category</p>
+    <h1 class="h3 fw-bold mb-2">{{ category.name }}</h1>
+    {% if category.description %}<p class="text-muted mb-2">{{ category.description }}</p>{% endif %}
+
+    {% if subcategory_list %}
+      <div class="d-flex flex-wrap gap-2 mt-2">
+        {% for subcategory in subcategory_list %}
+          <a href="{% url 'category_detail' subcategory.slug %}" class="badge text-bg-light border text-decoration-none">{{ subcategory.name }}</a>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  {% include "creamapp/partials/product_grid.html" with products=products empty_message="No products are available in this category yet." %}
+
+  {% if is_paginated %}
+    <nav aria-label="Category pagination" class="mt-4">
+      <ul class="pagination pagination-sm mb-0">
+        {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&sort={{ selected_sort }}">Previous</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+        {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&sort={{ selected_sort }}">Next</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+</div>
+{% endblock %}

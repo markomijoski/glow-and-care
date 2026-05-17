@@ -1,0 +1,109 @@
+{% extends "creamapp/dashboard_base.html" %}
+
+{% block dashboard_content %}
+<div class="card gc-glass-card mb-4">
+  <div class="card-body p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h4 fw-bold mb-0">Notifications</h1>
+      {% if notifications %}
+        <button class="btn btn-outline-secondary btn-sm" id="mark-all-read-btn">
+          Mark all as read
+        </button>
+      {% endif %}
+    </div>
+    
+    <div class="list-group list-group-flush" id="notifications-list">
+      {% for notif in notifications %}
+        <div class="list-group-item px-0 py-3 d-flex align-items-start gap-3 notif-item" data-notif-id="{{ notif.pk }}" id="notif-{{ notif.pk }}">
+          <div class="mt-1">
+            {% if not notif.is_read %}
+              <div class="notif-dot bg-pink rounded-circle" id="notif-dot-{{ notif.pk }}"></div>
+            {% else %}
+              <div class="notif-dot bg-transparent rounded-circle"></div>
+            {% endif %}
+          </div>
+          <div class="flex-grow-1">
+            <h6 class="mb-1 {% if not notif.is_read %}fw-bold text-dark{% else %}text-muted{% endif %}" id="notif-title-{{ notif.pk }}">
+              {{ notif.title }}
+            </h6>
+            <p class="mb-1 small {% if not notif.is_read %}text-dark{% else %}text-muted{% endif %}" id="notif-message-{{ notif.pk }}">
+              {{ notif.message }}
+            </p>
+            <div class="small text-muted">{{ notif.created_at|timesince }} ago</div>
+          </div>
+          
+          {% if not notif.is_read %}
+            <button class="btn btn-sm btn-light text-muted mark-read-btn" data-notif-id="{{ notif.pk }}">
+              <i class="bi bi-check2"></i>
+            </button>
+          {% endif %}
+        </div>
+      {% empty %}
+        <div class="p-5 text-center text-muted border rounded bg-light">
+          <i class="bi bi-bell fs-1 d-block mb-3 text-secondary"></i>
+          You have no notifications.
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block dashboard_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  function getCsrf() {
+    return document.cookie.match(/csrftoken=([^;]+)/)?.[1] || "";
+  }
+  
+  function markRead(id) {
+    const dot = document.getElementById("notif-dot-" + id);
+    const title = document.getElementById("notif-title-" + id);
+    const msg = document.getElementById("notif-message-" + id);
+    const btn = document.querySelector(`.mark-read-btn[data-notif-id="${id}"]`);
+    
+    if (dot) dot.className = "bg-transparent rounded-circle";
+    if (title) { title.classList.remove("fw-bold", "text-dark"); title.classList.add("text-muted"); }
+    if (msg) { msg.classList.remove("text-dark"); msg.classList.add("text-muted"); }
+    if (btn) btn.remove();
+  }
+  
+  // Single mark read
+  document.querySelectorAll(".mark-read-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+      const nid = this.dataset.notifId;
+      
+      fetch(`/notifications/${nid}/mark-read/`, {
+        method: "POST",
+        headers: { "X-CSRFToken": getCsrf() }
+      }).then(r => r.json()).then(data => {
+        if (data.success) {
+          markRead(nid);
+        }
+      });
+    });
+  });
+  
+  // Mark all read
+  const markAllBtn = document.getElementById("mark-all-read-btn");
+  if (markAllBtn) {
+    markAllBtn.addEventListener("click", function() {
+      this.disabled = true;
+      this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+      
+      fetch("{% url 'notification_mark_all_read' %}", {
+        method: "POST",
+        headers: { "X-CSRFToken": getCsrf() }
+      }).then(r => r.json()).then(data => {
+        if (data.success) {
+          document.querySelectorAll(".notif-item").forEach(item => {
+            markRead(item.dataset.notifId);
+          });
+          markAllBtn.remove();
+        }
+      });
+    });
+  }
+});
+</script>
+{% endblock %}

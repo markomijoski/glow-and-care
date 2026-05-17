@@ -1,0 +1,67 @@
+{% extends "creamapp/dashboard_base.html" %}
+
+{% block dashboard_content %}
+<div class="card gc-glass-card border-0 mb-4">
+  <div class="card-body p-4 p-lg-5">
+    <h1 class="h4 fw-bold mb-4">Profile Settings</h1>
+    
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      
+      <div class="row g-4">
+        {# Avatar #}
+        <div class="col-md-12">
+          <label class="form-label fw-semibold">Avatar</label>
+          <div class="d-flex align-items-center gap-3">
+            {% if request.user.profile.avatar %}
+              <img src="{{ request.user.profile.avatar.url }}" alt="Avatar" class="rounded-circle border gc-avatar-80">
+            {% else %}
+              <div class="bg-white bg-opacity-10 rounded-circle border d-flex align-items-center justify-content-center text-muted gc-avatar-80">
+                <i class="bi bi-person fs-1"></i>
+              </div>
+            {% endif %}
+            <div class="flex-grow-1 max-w-300">
+              {{ profile_form.avatar }}
+            </div>
+          </div>
+        </div>
+        
+        {# Name #}
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">First Name</label>
+          {{ user_form.first_name }}
+          {% if user_form.first_name.errors %}
+            <div class="small text-danger mt-1">{{ user_form.first_name.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Last Name</label>
+          {{ user_form.last_name }}
+          {% if user_form.last_name.errors %}
+            <div class="small text-danger mt-1">{{ user_form.last_name.errors.0 }}</div>
+          {% endif %}
+        </div>
+        
+        {# Phone & Email #}
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Phone Number</label>
+          {{ profile_form.phone_number }}
+          {% if profile_form.phone_number.errors %}
+            <div class="small text-danger mt-1">{{ profile_form.phone_number.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Email Address</label>
+          <input type="email" class="form-control text-muted" value="{{ request.user.email }}" disabled readonly>
+          <div class="form-text">Your email is used for login and cannot be changed here.</div>
+        </div>
+      </div>
+      
+      <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
+        <a href="{% url 'account_change_password' %}" class="btn btn-outline-secondary me-auto">Change Password</a>
+        <button type="submit" class="btn btn-pink px-4">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

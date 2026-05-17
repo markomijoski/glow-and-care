@@ -1,0 +1,45 @@
+"""URL routing for creamapp."""
+
+from django.urls import path
+
+from . import views
+
+urlpatterns = [
+	path("", views.home_view, name="home"),
+	path("search/", views.search_view, name="search"),
+	path("cart/", views.cart_detail_view, name="cart_detail"),
+	path("cart/add/", views.cart_add_view, name="cart_add"),
+	path("cart/update/<int:item_id>/", views.cart_update_view, name="cart_update"),
+	path("cart/remove/<int:item_id>/", views.cart_remove_view, name="cart_remove"),
+	path("profile/", views.profile_view, name="profile"),
+	path("notifications/", views.notifications_view, name="notifications"),
+	path("notifications/<int:pk>/mark-read/", views.notification_mark_read_view, name="notification_mark_read"),
+	path("notifications/mark-all-read/", views.notification_mark_all_read_view, name="notification_mark_all_read"),
+	path("wishlist/", views.wishlist_view, name="wishlist"),
+	path("wishlist/add/", views.wishlist_add_view, name="wishlist_add"),
+	path("wishlist/remove/", views.wishlist_remove_view, name="wishlist_remove"),
+	path("orders/", views.order_list_view, name="order_list"),
+	path("orders/success/<int:pk>/", views.order_success_view, name="order_success"),
+	path("orders/<int:pk>/", views.order_detail_view, name="order_detail"),
+	path("orders/<int:pk>/return/", views.order_return_view, name="order_return"),
+	path("checkout/", views.checkout_view, name="checkout"),
+	path("checkout/apply-discount/", views.apply_discount_view, name="apply_discount"),
+	path("checkout/confirm/", views.order_confirm_view, name="order_confirm"),
+	path("addresses/", views.address_list_view, name="address_list"),
+	path("addresses/add/", views.address_create_view, name="address_create"),
+	path("addresses/<int:pk>/edit/", views.address_edit_view, name="address_edit"),
+	path("addresses/<int:pk>/delete/", views.address_delete_view, name="address_delete"),
+	path("addresses/<int:pk>/set-default/", views.address_set_default_view, name="address_set_default"),
+	path("products/", views.product_list_view, name="product_list"),
+	path("products/<slug:slug>/", views.product_detail_view, name="product_detail"),
+	path("products/<slug:slug>/review/", views.review_create_view, name="review_create"),
+	path("categories/<slug:slug>/", views.category_detail_view, name="category_detail"),
+	path("faq/", views.faq_view, name="faq"),
+	path("newsletter/subscribe/", views.newsletter_subscribe_view, name="newsletter_subscribe"),
+	path("login/", views.login_view, name="login"),
+	path("register/", views.register_view, name="register"),
+	path("logout/", views.logout_view, name="logout"),
+	path("password-reset/", views.password_reset_view, name="password_reset"),
+	path("terms/", views.terms_view, name="terms"),
+	path("privacy/", views.privacy_view, name="privacy"),
+]

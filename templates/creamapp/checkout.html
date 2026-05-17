@@ -1,0 +1,452 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Checkout{% endblock %}
+{% block meta_description %}Complete your Glow & Care order — choose your shipping address and confirm.{% endblock %}
+
+{% block extra_css %}
+<style>
+  body {
+    background-color: var(--gc-cream, #fdf6f0);
+  }
+  
+  /* Address Grid Styles */
+  .address-card {
+    border: 1px solid var(--gc-border);
+    border-radius: 0.75rem;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--gc-shadow-sm);
+  }
+  .address-card:hover {
+    border-color: var(--gc-pink);
+    transform: translateY(-3px);
+    box-shadow: var(--gc-shadow);
+  }
+  .address-card.selected {
+    border-color: var(--gc-pink, #e8677a);
+    background-color: #fffafb;
+  }
+  .address-card.selected::after {
+    content: '\F26A'; /* bi-check-circle-fill */
+    font-family: 'bootstrap-icons';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    color: var(--gc-pink, #e8677a);
+    font-size: 1.25rem;
+  }
+  .addr-default-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: var(--gc-pink-light);
+    color: var(--gc-pink);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+  }
+  
+  /* Add New Card */
+  .address-card.add-new {
+    border: 2px dashed #dee2e6;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+  }
+  .address-card.add-new:hover {
+    border-color: var(--gc-pink);
+    color: var(--gc-pink);
+    background: #fffafb;
+  }
+
+  /* Form & Inputs */
+  .form-control, .form-select {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #ced4da;
+    background-color: #fff;
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: var(--gc-pink);
+    box-shadow: 0 0 0 0.25rem rgba(232, 103, 122, 0.15);
+  }
+  
+  /* Step Headers */
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: #212529;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 0.875rem;
+    font-weight: bold;
+    margin-right: 0.75rem;
+  }
+
+  /* Order Summary Panel */
+  .summary-panel {
+    background: #fff;
+    border: 1px solid var(--gc-border);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: var(--gc-shadow);
+  }
+  .item-thumb-img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    border: 1px solid #dee2e6;
+  }
+  .qty-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: rgba(33, 37, 41, 0.85);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: bold;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4 py-lg-5 max-w-1100 mx-auto">
+
+  <div class="text-center mb-5">
+    <h1 class="display-6 fw-bold mb-2">Secure Checkout</h1>
+    <p class="text-muted">You're almost there — just a few more steps.</p>
+  </div>
+
+  <form method="POST" action="{% url 'order_confirm' %}" id="checkout-form" novalidate>
+    {% csrf_token %}
+    {# One-time checkout token to prevent double-submission #}
+    <input type="hidden" name="checkout_token" value="{{ checkout_token }}">
+    <input type="hidden" name="address_id" id="hid-address-id">
+    <input type="hidden" name="discount_code" id="hid-discount-code">
+
+    <div class="row g-4 g-xl-5">
+
+      {# ── LEFT COLUMN: Flow ────────────────────────────────────── #}
+      <div class="col-lg-7">
+
+        {# STEP 1: Shipping Address #}
+        <div class="card gc-step-card border-0 mb-4">
+          <div class="card-body p-4 p-lg-5">
+            <h4 class="fw-bold mb-4 d-flex align-items-center">
+              <span class="step-num">1</span> Shipping Address
+            </h4>
+
+            {% if saved_addresses %}
+            <div class="row g-3 mb-4" id="addr-grid">
+              {% for addr in saved_addresses %}
+              <div class="col-sm-6">
+                <label class="address-card d-block p-4 h-100 {% if address_form.errors %}{% else %}{% if forloop.first %}selected{% endif %}{% endif %}" id="addr-label-{{ addr.pk }}">
+                  <input type="radio" name="_addr_radio" value="{{ addr.pk }}" class="addr-radio visually-hidden" {% if address_form.errors %}{% else %}{% if forloop.first %}checked{% endif %}{% endif %}>
+                  {% if addr.is_default %}
+                    <span class="addr-default-badge">Default</span>
+                  {% endif %}
+                  <div class="fw-bold text-dark mt-3 mb-1">{{ addr.full_name }}</div>
+                  <div class="text-muted small lh-sm">
+                    {{ addr.street }}<br>
+                    {{ addr.city }}, {{ addr.state }} {{ addr.postal_code }}<br>
+                    {{ addr.country }}
+                  </div>
+                  {% if addr.phone %}<div class="text-muted small mt-2"><i class="bi bi-telephone me-1"></i>{{ addr.phone }}</div>{% endif %}
+                </label>
+              </div>
+              {% endfor %}
+
+              <div class="col-sm-6">
+                <label class="address-card add-new text-muted h-100 {% if address_form.errors %}selected{% endif %}" id="addr-new-tile">
+                  <input type="radio" name="_addr_radio" value="new" class="addr-radio visually-hidden" {% if address_form.errors %}checked{% endif %}>
+                  <i class="bi bi-plus-circle fs-3 mb-2"></i>
+                  <span class="fw-semibold">Add New Address</span>
+                </label>
+              </div>
+            </div>
+            {% endif %}
+
+            {# New Address Form #}
+            <div id="new-addr-form" class="bg-white bg-opacity-10 p-4 rounded-4 {% if saved_addresses and not address_form.errors %}d-none{% endif %}">
+              <h6 class="fw-bold mb-3">Enter New Shipping Address</h6>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold text-muted">Full Name *</label>
+                  {{ address_form.full_name }}
+                  {% if address_form.full_name.errors %}<div class="text-danger small mt-1">{{ address_form.full_name.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold text-muted">Phone Number *</label>
+                  {{ address_form.phone }}
+                </div>
+                <div class="col-12">
+                  <label class="form-label small fw-semibold text-muted">Street Address *</label>
+                  {{ address_form.street }}
+                  {% if address_form.street.errors %}<div class="text-danger small mt-1">{{ address_form.street.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label small fw-semibold text-muted">City *</label>
+                  {{ address_form.city }}
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold text-muted">State</label>
+                  {{ address_form.state }}
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-semibold text-muted">Zip / Postal</label>
+                  {{ address_form.postal_code }}
+                </div>
+                <div class="col-12">
+                  <label class="form-label small fw-semibold text-muted">Country</label>
+                  {{ address_form.country }}
+                </div>
+                <div class="col-12 mt-3">
+                  <div class="form-check form-switch">
+                    {{ address_form.is_default }}
+                    <label class="form-check-label fw-semibold text-dark">{{ address_form.is_default.label }}</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {# STEP 2: Discount Code #}
+        <div class="card gc-step-card border-0 mb-4">
+          <div class="card-body p-4 p-lg-5">
+            <h4 class="fw-bold mb-4 d-flex align-items-center">
+              <span class="step-num">2</span> Discount Code <span class="text-muted ms-2 fs-6 fw-normal">(Optional)</span>
+            </h4>
+            <div class="d-flex gap-2 max-w-sm">
+              <input type="text" id="discount-input" class="form-control text-uppercase" placeholder="e.g. GLOW20" autocomplete="off">
+              <button type="button" id="discount-apply-btn" class="btn btn-outline-dark px-4 fw-semibold">Apply</button>
+            </div>
+            <div id="discount-feedback" class="mt-2 small fw-semibold d-none"></div>
+          </div>
+        </div>
+
+        {# STEP 3: Delivery Notes #}
+        <div class="card gc-step-card border-0">
+          <div class="card-body p-4 p-lg-5">
+            <h4 class="fw-bold mb-4 d-flex align-items-center">
+              <span class="step-num">3</span> Delivery Notes <span class="text-muted ms-2 fs-6 fw-normal">(Optional)</span>
+            </h4>
+            <textarea name="notes" id="notes" class="form-control bg-light" rows="3" placeholder="e.g. Please leave at the front door if I'm not home..."></textarea>
+          </div>
+        </div>
+
+      </div>
+
+      {# ── RIGHT COLUMN: Order Summary ──────────────────────────── #}
+      <div class="col-lg-5">
+        <div class="summary-panel gc-summary-panel sticky-lg-top gc-sticky-6">
+          
+          <h4 class="fw-bold mb-4">Order Summary</h4>
+
+          <div class="d-flex flex-column gap-3 mb-4">
+            {% for item in cart_items %}
+            <div class="d-flex align-items-center">
+              <div class="position-relative flex-shrink-0 me-3">
+                {% if item.product.primary_image %}
+                  <img src="{{ item.product.primary_image.url }}" alt="{{ item.product.name }}" class="item-thumb-img shadow-sm">
+                {% else %}
+                  <div class="item-thumb-img bg-light d-flex align-items-center justify-content-center text-muted shadow-sm">
+                    <i class="bi bi-image"></i>
+                  </div>
+                {% endif %}
+                <span class="qty-badge">{{ item.quantity }}</span>
+              </div>
+              <div class="flex-grow-1 min-w-0">
+                <h6 class="mb-0 fw-bold text-dark text-truncate">{{ item.product.name }}</h6>
+                {% if item.variant %}<div class="small text-muted">{{ item.variant.name }}</div>{% endif %}
+              </div>
+              <div class="fw-semibold ms-3 text-dark">
+                ${{ item.subtotal }}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <hr class="text-muted opacity-25 mb-4">
+
+          <div class="d-flex justify-content-between mb-2 text-muted fw-semibold">
+            <span>Subtotal</span>
+            <span id="sum-subtotal">${{ cart.total_price }}</span>
+          </div>
+          
+          <div class="d-flex justify-content-between mb-2 text-success fw-semibold d-none" id="discount-row">
+            <span>Discount (<span id="sum-discount-pct"></span>%)</span>
+            <span id="sum-discount-amt"></span>
+          </div>
+          
+          <div class="d-flex justify-content-between mb-4 text-muted fw-semibold">
+            <span>Shipping</span>
+            <span class="text-success">Free</span>
+          </div>
+
+          <hr class="text-muted opacity-25 mb-4">
+
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <span class="fs-5 fw-bold text-dark">Total</span>
+            <span class="fs-4 fw-bold text-dark" id="sum-total">${{ cart.total_price }}</span>
+          </div>
+
+          <button type="submit" class="btn btn-dark btn-lg w-100 fw-bold shadow-sm mb-3" id="place-order-btn">
+            Place Order <i class="bi bi-arrow-right ms-2"></i>
+          </button>
+          
+          <div class="text-center text-muted small">
+            <i class="bi bi-shield-lock-fill me-1"></i> Secure and encrypted checkout.
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  "use strict";
+
+  /* ── CSRF ───────────────────────────────────────────────────── */
+  function csrf() {
+    const m = document.cookie.match(/csrftoken=([^;]+)/);
+    return m ? m[1] : "";
+  }
+
+  /* ── Address card selection ─────────────────────────────────── */
+  const addrGrid = document.getElementById("addr-grid");
+  const hidAddrId = document.getElementById("hid-address-id");
+  const newAddrForm = document.getElementById("new-addr-form");
+
+  function selectAddrCard(label) {
+    document.querySelectorAll(".address-card").forEach(c => c.classList.remove("selected"));
+    label.classList.add("selected");
+  }
+
+  if (addrGrid) {
+    const firstRadio = addrGrid.querySelector(".addr-radio:checked");
+    if (firstRadio && firstRadio.value !== "new") {
+      hidAddrId.value = firstRadio.value;
+    }
+
+    addrGrid.addEventListener("change", function (e) {
+      const radio = e.target.closest(".addr-radio");
+      if (!radio) return;
+      const label = radio.closest(".address-card");
+      selectAddrCard(label);
+      if (radio.value === "new") {
+        newAddrForm.style.display = "";
+        hidAddrId.value = "";
+      } else {
+        newAddrForm.style.display = "none";
+        hidAddrId.value = radio.value;
+      }
+    });
+  }
+
+  /* ── Discount code AJAX ─────────────────────────────────────── */
+  const discountInput = document.getElementById("discount-input");
+  const applyBtn = document.getElementById("discount-apply-btn");
+  const feedback = document.getElementById("discount-feedback");
+  const hidCode = document.getElementById("hid-discount-code");
+  const subtotalRaw = parseFloat("{{ cart.total_price }}") || 0;
+
+  function updateTotal(discountPct) {
+    const discount = subtotalRaw * (discountPct / 100);
+    const total = subtotalRaw - discount;
+
+    const sumDiscount = document.getElementById("sum-discount-amt");
+    const sumDiscountPct = document.getElementById("sum-discount-pct");
+    const discountRow = document.getElementById("discount-row");
+    const sumTotal = document.getElementById("sum-total");
+
+    if (discountPct > 0) {
+      sumDiscount.textContent = "−$" + discount.toFixed(2);
+      sumDiscountPct.textContent = discountPct;
+      discountRow.style.setProperty("display", "flex", "important");
+    } else {
+      discountRow.style.setProperty("display", "none", "important");
+    }
+    sumTotal.textContent = "$" + total.toFixed(2);
+  }
+
+  function showFeedback(msg, ok) {
+    feedback.textContent = msg;
+    feedback.className = "mt-2 small fw-semibold " + (ok ? "text-success" : "text-danger");
+    feedback.style.display = "block";
+  }
+
+  if (applyBtn) {
+    applyBtn.addEventListener("click", function () {
+      const code = discountInput.value.trim().toUpperCase();
+      if (!code) { showFeedback("Enter a code first.", false); return; }
+
+      applyBtn.disabled = true;
+      applyBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+      fetch("{% url 'apply_discount' %}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrf() },
+        body: JSON.stringify({ code }),
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.valid) {
+            hidCode.value = data.code;
+            updateTotal(parseFloat(data.discount_percent));
+            showFeedback(data.message, true);
+            discountInput.disabled = true;
+            applyBtn.textContent = "Applied ✓";
+            applyBtn.classList.replace("btn-outline-dark", "btn-success");
+          } else {
+            hidCode.value = "";
+            updateTotal(0);
+            showFeedback(data.message, false);
+            applyBtn.disabled = false;
+            applyBtn.textContent = "Apply";
+          }
+        })
+        .catch(() => {
+          showFeedback("Could not validate code. Please try again.", false);
+          applyBtn.disabled = false;
+          applyBtn.textContent = "Apply";
+        });
+    });
+  }
+
+  /* ── Prevent double-submit ──────────────────────────────────── */
+  const form = document.getElementById("checkout-form");
+  const placeBtn = document.getElementById("place-order-btn");
+  if (form) {
+    form.addEventListener("submit", function () {
+      placeBtn.disabled = true;
+      placeBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+    });
+  }
+})();
+</script>
+{% endblock %}

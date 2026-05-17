@@ -1,0 +1,140 @@
+{% extends "creamapp/dashboard_base.html" %}
+
+{% block dashboard_content %}
+<div class="card gc-glass-card border-0 mb-4">
+  <div class="card-body p-4 p-lg-5">
+    <h1 class="h4 fw-bold mb-4">My Wishlist</h1>
+    
+    <div class="row g-4" id="wishlist-grid">
+      {% for item in items %}
+        <div class="col-sm-6 col-md-4" id="wishlist-item-{{ item.product.pk }}">
+          <div class="card h-100 border-0 product-card">
+            <div class="position-relative">
+              <a href="{% url 'product_detail' item.product.slug %}">
+                {% with img=item.product.primary_image %}
+                  {% if img %}
+                    <img src="{{ img.url }}" class="card-img-top gc-media-200" alt="{{ item.product.name }}">
+                  {% else %}
+                    <div class="bg-white bg-opacity-10 d-flex align-items-center justify-content-center text-muted card-img-top gc-media-200">
+                      <i class="bi bi-image fs-1"></i>
+                    </div>
+                  {% endif %}
+                {% endwith %}
+              </a>
+              <button class="btn btn-light rounded-circle position-absolute top-0 end-0 m-2 shadow-sm text-danger wl-remove-btn" data-product-id="{{ item.product.pk }}">
+                <i class="bi bi-trash-fill"></i>
+              </button>
+            </div>
+            
+            <div class="card-body d-flex flex-column">
+              <h6 class="card-title fw-bold text-truncate mb-1">
+                <a href="{% url 'product_detail' item.product.slug %}" class="text-dark text-decoration-none">{{ item.product.name }}</a>
+              </h6>
+              <div class="text-pink fw-semibold mb-3">${{ item.product.base_price }}</div>
+              
+              <button class="btn btn-outline-pink mt-auto w-100 wl-add-cart-btn" data-product-id="{{ item.product.pk }}">
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12" id="wishlist-empty">
+           {% include "creamapp/includes/empty_state.html" with title="Your wishlist is empty" message="Save your favorite skincare products here to keep track of them." icon="bi-heart" %}
+        </div>
+      {% endfor %}
+      
+      {# Hidden empty state for JS #}
+      <div class="col-12 d-none" id="wishlist-empty-hidden">
+        {% include "creamapp/includes/empty_state.html" with title="Your wishlist is empty" message="Save your favorite skincare products here to keep track of them." icon="bi-heart" %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block dashboard_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  function getCsrf() {
+    return document.cookie.match(/csrftoken=([^;]+)/)?.[1] || "";
+  }
+  
+  // Remove from wishlist
+  document.querySelectorAll(".wl-remove-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+      const pid = this.dataset.productId;
+      const card = document.getElementById("wishlist-item-" + pid);
+      
+      this.disabled = true;
+      
+      fetch("{% url 'wishlist_remove' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCsrf()
+        },
+        body: JSON.stringify({ product_id: pid })
+      }).then(r => r.json()).then(data => {
+        if (data.removed) {
+          card.remove();
+          
+          // Show empty state if no items left
+          if (document.querySelectorAll("#wishlist-grid .col-md-4").length === 0) {
+            document.getElementById("wishlist-empty-hidden").style.display = "block";
+            const oldEmpty = document.getElementById("wishlist-empty");
+            if (oldEmpty) oldEmpty.remove();
+          }
+        }
+      });
+    });
+  });
+  
+  // Move to cart
+  document.querySelectorAll(".wl-add-cart-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+      const pid = this.dataset.productId;
+      const card = document.getElementById("wishlist-item-" + pid);
+      
+      this.disabled = true;
+      this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+      
+      // Add to cart
+      fetch("{% url 'cart_add' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCsrf()
+        },
+        body: JSON.stringify({ product_id: pid, quantity: 1 })
+      }).then(r => r.json()).then(data => {
+        if (data.cart_item_count !== undefined) {
+          // Remove from wishlist automatically
+          fetch("{% url 'wishlist_remove' %}", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCsrf()
+            },
+            body: JSON.stringify({ product_id: pid })
+          }).then(() => {
+            card.remove();
+            
+            // Sync cart badge (assuming there's one)
+            const badge = document.querySelector(".cart-badge");
+            if (badge) badge.textContent = data.cart_item_count;
+            
+            // Show empty state if needed
+            if (document.querySelectorAll("#wishlist-grid .col-md-4").length === 0) {
+              document.getElementById("wishlist-empty-hidden").style.display = "block";
+              const oldEmpty = document.getElementById("wishlist-empty");
+              if (oldEmpty) oldEmpty.remove();
+            }
+          });
+        }
+      });
+    });
+  });
+});
+</script>
+{% endblock %}
