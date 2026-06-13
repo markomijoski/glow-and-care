@@ -171,8 +171,10 @@ class Phase1IdempotencyFixTest(TestCase):
 			user=self.user,
 			full_name="Test User",
 			phone="1234567890",
-			# email="test@example.com",
+			street="Test Street 1",
 			city="Test City",
+			state="Test State",
+			postal_code="1000",
 			country="US",
 		)
 
@@ -197,8 +199,10 @@ class Phase1IdempotencyFixTest(TestCase):
 			user=self.user,
 			full_name="Test User",
 			phone="1234567890",
-			# email="test@example.com",
+			street="Test Street 1",
 			city="Test City",
+			state="Test State",
+			postal_code="1000",
 			country="US",
 		)
 
@@ -288,9 +292,6 @@ class Phase1OrderServiceTest(TransactionTestCase):
 		
 		self.discount = DiscountCode.objects.create(
 			code="TEST10",
-			# discount_type=DiscountCode.DiscountType.PERCENTAGE,
-			# discount_value=10,
-			# times_limit=100,
 			discount_percent=10,
             active=True,
 		)
