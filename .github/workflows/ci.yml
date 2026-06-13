@@ -43,10 +43,11 @@ jobs:
 
     env:
       SECRET_KEY:             test-secret-key-not-for-production
-      DATABASE_URL:           postgres://creamshop_user:testpassword@localhost:5432/creamshop_test
-      DJANGO_SETTINGS_MODULE: CreamShop.settings.dev
-      ALLOWED_HOSTS:          localhost,127.0.0.1
-      DEFAULT_FROM_EMAIL:     test@creamshop.com
+      DB_NAME:     creamshop_test
+      DB_USER:     creamshop_user
+      DB_PASSWORD: testpassword
+      DB_HOST:     localhost
+      DB_PORT:     5432
 
     steps:
       - name: Checkout code
