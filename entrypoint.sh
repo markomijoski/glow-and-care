@@ -6,7 +6,7 @@ set -e
 
 echo "[entrypoint] running migrations (if any)..."
 MAX_RETRIES=3
-COUNT=0
+COUNT=0d
 until python manage.py migrate --noinput; do
 	COUNT=$((COUNT+1))
 	if [ "$COUNT" -ge "$MAX_RETRIES" ]; then
