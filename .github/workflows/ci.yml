@@ -9,7 +9,7 @@
 #    4. Push to DockerHub
 # =============================================================================
 
-name: CI — Build & Push Docker Image
+name: Build Test & Push Docker Image
 
 on:
   push:
