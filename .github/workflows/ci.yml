@@ -67,8 +67,8 @@ jobs:
       - name: Run migrations
         run: python manage.py migrate --noinput
 
-      # - name: Run tests
-      #   run: python manage.py test --verbosity=2
+      - name: Run tests
+        run: python manage.py test --verbosity=2
 
   # ---------------------------------------------------------------------------
   # Job 2 — Build and push Docker image to DockerHub
