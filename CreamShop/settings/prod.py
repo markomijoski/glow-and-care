@@ -86,10 +86,9 @@ LOGGING = {
         },
     },
     "handlers": {
-        "file": {
+        "console": {  # Го сменивме 'file' во 'console'
             "level": "WARNING",
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR / "logs" / "django.log",  # noqa: F405
+            "class": "logging.StreamHandler",  # Ова пишува во терминалот
             "formatter": "verbose",
         },
         "mail_admins": {
@@ -99,12 +98,12 @@ LOGGING = {
     },
     "loggers": {
         "django": {
-            "handlers": ["file", "mail_admins"],
+            "handlers": ["console", "mail_admins"], # Го користиме 'console'
             "level": "WARNING",
             "propagate": True,
         },
         "creamapp": {
-            "handlers": ["file"],
+            "handlers": ["console"], # Го користиме 'console'
             "level": "WARNING",
             "propagate": False,
         },
