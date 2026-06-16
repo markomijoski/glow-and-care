@@ -38,10 +38,10 @@ X_FRAME_OPTIONS                = "DENY"
 # Email — production SMTP via Anymail + SendGrid (or Mailgun)
 # pip install django-anymail[sendgrid]
 # ---------------------------------------------------------------------------
-EMAIL_BACKEND    = "anymail.backends.sendgrid.EmailBackend"
-ANYMAIL = {
-    "SENDGRID_API_KEY": env("SENDGRID_API_KEY"),  # noqa: F405
-}
+# EMAIL_BACKEND    = "anymail.backends.sendgrid.EmailBackend"
+# ANYMAIL = {
+#     "SENDGRID_API_KEY": env("SENDGRID_API_KEY"),  # noqa: F405
+# }
 
 # ---------------------------------------------------------------------------
 # Static & Media — WhiteNoise for static, AWS S3 for media uploads
@@ -74,7 +74,7 @@ ANYMAIL = {
 # ---------------------------------------------------------------------------
 # Logging — write errors to file, send critical errors to admins via email
 # ---------------------------------------------------------------------------
-ADMINS = [("Glow & Care Admin", env("ADMIN_EMAIL", default="admin@glowandcare.com"))]  # noqa: F405
+# ADMINS = [("Glow & Care Admin", env("ADMIN_EMAIL", default="admin@glowandcare.com"))]  # noqa: F405
 
 LOGGING = {
     "version": 1,
