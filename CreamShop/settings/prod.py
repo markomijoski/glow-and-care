@@ -31,7 +31,7 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")  # noqa: F405 set in .env.prod
 # Клучни линии за Kubernetes/Docker средини
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
-
+SECURE_REDIRECT_EXEMPT = [r'^healthz/?$']
 # ---------------------------------------------------------------------------
 # Database — set DATABASE_URL in your production .env
 # ---------------------------------------------------------------------------

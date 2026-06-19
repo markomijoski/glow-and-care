@@ -1,5 +1,6 @@
 """URL routing for creamapp."""
 
+from django.http import HttpResponse
 from django.urls import path
 
 from . import views
@@ -43,3 +44,4 @@ urlpatterns = [
 	path("terms/", views.terms_view, name="terms"),
 	path("privacy/", views.privacy_view, name="privacy"),
 ]
+urlpatterns += [path("healthz/", lambda r: HttpResponse("ok"))]
