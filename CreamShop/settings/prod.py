@@ -20,14 +20,17 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")  # noqa: F405 set in .env.prod
 # ---------------------------------------------------------------------------
 # Security Headers
 # ---------------------------------------------------------------------------
-SECURE_HSTS_SECONDS            = 31536000   # 1 year
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD            = True
-SECURE_SSL_REDIRECT            = True
-SESSION_COOKIE_SECURE          = True
-CSRF_COOKIE_SECURE             = True
-SECURE_CONTENT_TYPE_NOSNIFF    = True
-X_FRAME_OPTIONS                = "DENY"
+# SECURE_HSTS_SECONDS            = 31536000   # 1 year
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_PRELOAD            = True
+# SECURE_SSL_REDIRECT            = True
+# SESSION_COOKIE_SECURE          = True
+# CSRF_COOKIE_SECURE             = True
+# SECURE_CONTENT_TYPE_NOSNIFF    = True
+# X_FRAME_OPTIONS                = "DENY"
+# Клучни линии за Kubernetes/Docker средини
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
 
 # ---------------------------------------------------------------------------
 # Database — set DATABASE_URL in your production .env
