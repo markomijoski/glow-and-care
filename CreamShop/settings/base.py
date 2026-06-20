@@ -199,4 +199,4 @@ SESSION_COOKIE_AGE     = 60 * 60 * 24 * 30    # 30 days
 SESSION_SAVE_EVERY_REQUEST = False  # FIXED: Changed from True to False for performance
 SECURE_REDIRECT_EXEMPT = [r'^healthz/?$']
 
-APPEND_SLASH = False  # Ensure URLs have trailing slashes for consistency and SEO
+# APPEND_SLASH = False  # Ensure URLs have trailing slashes for consistency and SEO

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: glowcare
+  labels:
+    app.kubernetes.io/name: glowcare
+    app.kubernetes.io/part-of: creamshop-project

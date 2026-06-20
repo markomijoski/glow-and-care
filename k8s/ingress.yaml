@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: glowcare
+  namespace: glowcare
+  labels:
+    app.kubernetes.io/name: glowcare
+    app.kubernetes.io/component: backend
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: glowcare
+                port:
+                  name: http

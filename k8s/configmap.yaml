@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: glowcare-config
+  namespace: glowcare
+  labels:
+    app.kubernetes.io/name: glowcare
+    app.kubernetes.io/component: backend
+data:
+  DB_HOST: "postgres-service"
+  DB_PORT: "5432"
+  DB_NAME: creamshop_db_docker
+  APP_ENV: production
