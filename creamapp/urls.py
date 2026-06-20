@@ -44,4 +44,3 @@ urlpatterns = [
 	path("terms/", views.terms_view, name="terms"),
 	path("privacy/", views.privacy_view, name="privacy"),
 ]
-urlpatterns += [path("healthz/", lambda r: HttpResponse("ok"))]

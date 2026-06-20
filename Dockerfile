@@ -59,7 +59,8 @@ EXPOSE 8000
 
 # Healthcheck (uses Python stdlib so no extra package required)
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD python -c "import urllib.request,sys; u=urllib.request.urlopen('http://127.0.0.1:8000/'); sys.exit(0 if u.getcode()==200 else 1)"
+    # CMD python -c "import urllib.request,sys; u=urllib.request.urlopen('http://127.0.0.1:8000/'); sys.exit(0 if u.getcode()==200 else 1)"
+    CMD python -c "import urllib.request,sys; u=urllib.request.urlopen('http://127.0.0.1:8000/healthz/'); sys.exit(0 if u.getcode()==200 else 1)"
 
 ENTRYPOINT ["/app/entrypoint.sh"]
 

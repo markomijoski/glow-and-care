@@ -49,7 +49,7 @@ services:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/health/ || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/healthz/ || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
