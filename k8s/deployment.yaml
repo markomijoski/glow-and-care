@@ -7,7 +7,15 @@ metadata:
     app.kubernetes.io/name: glowcare
     app.kubernetes.io/component: backend
 spec:
-  replicas: 1
+  replicas: 3
+  revisionHistoryLimit: 5
+  minReadySeconds: 10
+  progressDeadlineSeconds: 60
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2          
+      maxUnavailable: 2   
   selector:
     matchLabels:
       app.kubernetes.io/name: glowcare
@@ -74,7 +82,7 @@ spec:
               scheme: HTTP
               httpHeaders:
               - name: Host
-                value: localhost # или вашиот домен
+                value: localhost 
             periodSeconds: 10
             failureThreshold: 30
             timeoutSeconds: 5
@@ -85,7 +93,7 @@ spec:
               scheme: HTTP
               httpHeaders:
               - name: Host
-                value: localhost # или вашиот домен
+                value: localhost 
             initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 5
@@ -97,7 +105,7 @@ spec:
               scheme: HTTP
               httpHeaders:
               - name: Host
-                value: localhost # или вашиот домен
+                value: localhost 
             initialDelaySeconds: 30
             periodSeconds: 20
             timeoutSeconds: 5

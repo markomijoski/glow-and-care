@@ -7,7 +7,9 @@ metadata:
     app.kubernetes.io/name: glowcare
     app.kubernetes.io/component: backend
 data:
-  DB_HOST: "postgres-service"
+  # DB_HOST: "postgres-service"
+  DB_HOST: "pg-ha-cluster-rw"
   DB_PORT: "5432"
-  DB_NAME: creamshop_db_docker
+  # DB_NAME: creamshop_db_docker
+  DB_NAME: app_db
   APP_ENV: production
