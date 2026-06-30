@@ -202,6 +202,6 @@ SECURE_REDIRECT_EXEMPT = [r'^healthz/?$']
 # APPEND_SLASH = False  # Ensure URLs have trailing slashes for consistency and SEO
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:8080/",
-    "http://127.0.0.1:8080/",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
 ]
